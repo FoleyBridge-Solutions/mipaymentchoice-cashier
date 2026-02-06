@@ -479,11 +479,14 @@ use MiPaymentChoice\Cashier\Services\ApiClient;
 
 $api = app(ApiClient::class);
 
-// Make a POST request
-$response = $api->post('/api/v2/transaction', [
-    'Amount' => 10.00,
-    'Currency' => 'USD',
-    // ...
+// Make a POST request (transaction example)
+$response = $api->post('/api/v2/transactions/bcp', [
+    'TransactionType' => 'Sale',
+    'ForceDuplicate' => true,
+    'Token' => $token,
+    'InvoiceData' => [
+        'TotalAmount' => 10.00,
+    ],
 ]);
 
 // Make a GET request

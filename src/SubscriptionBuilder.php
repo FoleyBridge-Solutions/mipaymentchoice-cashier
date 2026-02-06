@@ -1,11 +1,14 @@
 <?php
 
-namespace MiPaymentChoice\Cashier;
+declare(strict_types=1);
+
+namespace FoleyBridgeSolutions\MiPaymentChoiceCashier;
 
 use Carbon\Carbon;
-use MiPaymentChoice\Cashier\Exceptions\ApiException;
-use MiPaymentChoice\Cashier\Models\Subscription;
-use MiPaymentChoice\Cashier\Services\ApiClient;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Events\SubscriptionCreated;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Exceptions\ApiException;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Models\Subscription;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Services\ApiClient;
 
 class SubscriptionBuilder
 {
@@ -70,9 +73,9 @@ class SubscriptionBuilder
      * Specify the number of days of the trial.
      *
      * @param  int  $trialDays
-     * @return $this
+     * @return static
      */
-    public function trialDays(int $trialDays)
+    public function trialDays(int $trialDays): static
     {
         $this->trialDays = $trialDays;
 
@@ -83,9 +86,9 @@ class SubscriptionBuilder
      * Specify the ending date of the trial.
      *
      * @param  \Carbon\Carbon  $trialExpires
-     * @return $this
+     * @return static
      */
-    public function trialUntil(Carbon $trialExpires)
+    public function trialUntil(Carbon $trialExpires): static
     {
         $this->trialExpires = $trialExpires;
 
@@ -95,9 +98,9 @@ class SubscriptionBuilder
     /**
      * Skip the trial period.
      *
-     * @return $this
+     * @return static
      */
-    public function skipTrial()
+    public function skipTrial(): static
     {
         $this->trialDays = null;
         $this->trialExpires = null;
@@ -109,9 +112,9 @@ class SubscriptionBuilder
      * Add metadata to the subscription.
      *
      * @param  array  $metadata
-     * @return $this
+     * @return static
      */
-    public function withMetadata(array $metadata)
+    public function withMetadata(array $metadata): static
     {
         $this->metadata = $metadata;
 
@@ -123,11 +126,19 @@ class SubscriptionBuilder
      *
      * @param  string|null  $token
      * @param  array  $options
-     * @return \MiPaymentChoice\Cashier\Models\Subscription
+     * @return \FoleyBridgeSolutions\MiPaymentChoiceCashier\Models\Subscription
      * @throws ApiException
      */
     public function create($token = null, array $options = []): Subscription
     {
+        // Check for existing active subscription with same name
+        $existingSubscription = $this->user->subscription($this->name);
+        if ($existingSubscription && $existingSubscription->active()) {
+            throw new ApiException(
+                "An active subscription with name '{$this->name}' already exists. Cancel the existing subscription first or use a different name."
+            );
+        }
+
         if (!$this->user->hasMpcCustomerId()) {
             $this->user->createAsMpcCustomer();
         }
@@ -167,9 +178,12 @@ class SubscriptionBuilder
                 'ends_at' => null,
             ]);
 
+            // Dispatch subscription created event
+            event(new SubscriptionCreated($subscription));
+
             return $subscription;
         } catch (\Exception $e) {
-            throw new ApiException('Failed to create subscription: ' . $e->getMessage());
+            throw new ApiException('Failed to create subscription: ' . $e->getMessage(), [], 0, $e);
         }
     }
 

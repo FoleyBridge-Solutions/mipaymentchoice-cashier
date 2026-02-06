@@ -1,8 +1,11 @@
 <?php
 
-namespace MiPaymentChoice\Cashier\Exceptions;
+declare(strict_types=1);
+
+namespace FoleyBridgeSolutions\MiPaymentChoiceCashier\Exceptions;
 
 use Exception;
+use Throwable;
 
 class ApiException extends Exception
 {
@@ -18,11 +21,13 @@ class ApiException extends Exception
      *
      * @param  string  $message
      * @param  array  $response
+     * @param  int  $code
+     * @param  \Throwable|null  $previous
      * @return void
      */
-    public function __construct($message = '', array $response = [])
+    public function __construct(string $message = '', array $response = [], int $code = 0, ?Throwable $previous = null)
     {
-        parent::__construct($message);
+        parent::__construct($message, $code, $previous);
 
         $this->response = $response;
     }
@@ -32,7 +37,7 @@ class ApiException extends Exception
      *
      * @return array
      */
-    public function getResponse()
+    public function getResponse(): array
     {
         return $this->response;
     }

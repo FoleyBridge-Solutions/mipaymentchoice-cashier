@@ -1,11 +1,13 @@
 <?php
 
-namespace MiPaymentChoice\Cashier;
+declare(strict_types=1);
+
+namespace FoleyBridgeSolutions\MiPaymentChoiceCashier;
 
 use Illuminate\Support\ServiceProvider;
-use MiPaymentChoice\Cashier\Services\ApiClient;
-use MiPaymentChoice\Cashier\Services\TokenService;
-use MiPaymentChoice\Cashier\Services\QuickPaymentsService;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Services\ApiClient;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Services\TokenService;
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Services\QuickPaymentsService;
 
 class CashierServiceProvider extends ServiceProvider
 {
@@ -31,15 +33,13 @@ class CashierServiceProvider extends ServiceProvider
 
         $this->app->singleton(TokenService::class, function ($app) {
             return new TokenService(
-                $app->make(ApiClient::class),
-                config('mipaymentchoice.merchant_key')
+                $app->make(ApiClient::class)
             );
         });
 
         $this->app->singleton(QuickPaymentsService::class, function ($app) {
             return new QuickPaymentsService(
                 $app->make(ApiClient::class),
-                config('mipaymentchoice.merchant_key'),
                 config('mipaymentchoice.quickpayments_key')
             );
         });

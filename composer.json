@@ -1,12 +1,13 @@
 {
-    "name": "mipaymentchoice/cashier",
+    "name": "foleybridgesolutions/mipaymentchoice-cashier",
     "description": "Laravel Cashier integration for MiPaymentChoice payment gateway",
+    "version": "1.0.0",
     "keywords": ["laravel", "cashier", "mipaymentchoice", "billing", "payment"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "you@example.com"
+            "name": "FoleyBridge Solutions",
+            "email": "dev@foleybridgesolutions.com"
         }
     ],
     "require": {
@@ -23,18 +24,18 @@
     },
     "autoload": {
         "psr-4": {
-            "MiPaymentChoice\\Cashier\\": "src/"
+            "FoleyBridgeSolutions\\MiPaymentChoiceCashier\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MiPaymentChoice\\Cashier\\Tests\\": "tests/"
+            "FoleyBridgeSolutions\\MiPaymentChoiceCashier\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "MiPaymentChoice\\Cashier\\CashierServiceProvider"
+                "FoleyBridgeSolutions\\MiPaymentChoiceCashier\\CashierServiceProvider"
             ]
         }
     },
