@@ -402,14 +402,27 @@ trait CardBillable
         $api = app(ApiClient::class);
 
         $data = [
-            'TransactionId' => $transactionId,
+            'TransactionType' => TransactionType::REFUND,
+            'OriginalTransaction' => [
+                'TransactionId' => (int) $transactionId,
+            ],
         ];
 
         if ($amount) {
-            $data['Amount'] = $amount / 100;
+            $data['InvoiceData'] = [
+                'TotalAmount' => $amount / 100,
+            ];
         }
 
-        return $api->post('/api/v2/refund', $data);
+        // Use the customer's default card token if available
+        if (method_exists($this, 'defaultPaymentMethod')) {
+            $paymentMethod = $this->defaultPaymentMethod();
+            if ($paymentMethod && isset($paymentMethod->mpc_token)) {
+                $data['Token'] = $paymentMethod->mpc_token;
+            }
+        }
+
+        return $api->post('/api/v2/transactions/bcp', $data);
     }
 
     /**

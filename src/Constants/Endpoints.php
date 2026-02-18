@@ -16,6 +16,7 @@ class Endpoints
 
     // Transactions
     public const TRANSACTIONS_BCP = '/api/v2/transactions/bcp';
+    /** @deprecated Use TRANSACTIONS_BCP with TransactionType::REFUND instead */
     public const REFUND = '/api/v2/refund';
 
     // Customers
