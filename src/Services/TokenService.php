@@ -82,7 +82,7 @@ class TokenService
         }
 
         // Use cached merchant key in URL
-        return $this->api->post("/merchants/{$merchantKey}/tokens/cards", $payload);
+        return $this->api->post("/api/merchants/{$merchantKey}/tokens/cards", $payload);
     }
 
     /**
@@ -92,7 +92,7 @@ class TokenService
      */
     public function getCardToken(string $token): array
     {
-        return $this->api->get("/merchants/{$this->getMerchantKey()}/tokens/cards/{$token}");
+        return $this->api->get("/api/merchants/{$this->getMerchantKey()}/tokens/cards/{$token}");
     }
 
     /**
@@ -102,7 +102,7 @@ class TokenService
      */
     public function getCardTokens(array $filters = []): array
     {
-        return $this->api->get("/merchants/{$this->getMerchantKey()}/tokens/cards", $filters);
+        return $this->api->get("/api/merchants/{$this->getMerchantKey()}/tokens/cards", $filters);
     }
 
     /**
@@ -114,7 +114,7 @@ class TokenService
     {
         $payload = array_merge(['Token' => $token], $updates);
 
-        return $this->api->patch("/merchants/{$this->getMerchantKey()}/tokens/cards/{$token}", $payload);
+        return $this->api->patch("/api/merchants/{$this->getMerchantKey()}/tokens/cards/{$token}", $payload);
     }
 
     /**
@@ -153,7 +153,7 @@ class TokenService
             $payload['PostalCode'] = $cardDetails['postal_code'];
         }
 
-        return $this->api->put("/merchants/{$merchantKey}/tokens/cards/{$token}", $payload);
+        return $this->api->put("/api/merchants/{$merchantKey}/tokens/cards/{$token}", $payload);
     }
 
     /**
@@ -166,7 +166,7 @@ class TokenService
     public function deleteCardTokens($tokens): void
     {
         $tokenString = is_array($tokens) ? implode(',', $tokens) : $tokens;
-        $this->api->delete("/merchants/{$this->getMerchantKey()}/tokens/cards/{$tokenString}");
+        $this->api->delete("/api/merchants/{$this->getMerchantKey()}/tokens/cards/{$tokenString}");
     }
 
     // ==================== General Token Methods ====================
@@ -178,7 +178,7 @@ class TokenService
      */
     public function getCustomerTokens(int $customerKey): array
     {
-        return $this->api->get("/merchants/{$this->getMerchantKey()}/customers/{$customerKey}/tokens");
+        return $this->api->get("/api/merchants/{$this->getMerchantKey()}/customers/{$customerKey}/tokens");
     }
 
     /**
@@ -200,7 +200,7 @@ class TokenService
             $payload['CustomerKey'] = $customerKey;
         }
 
-        return $this->api->post("/merchants/{$this->getMerchantKey()}/tokens", $payload);
+        return $this->api->post("/api/merchants/{$this->getMerchantKey()}/tokens", $payload);
     }
 
     // ==================== Legacy Methods (for backward compatibility) ====================

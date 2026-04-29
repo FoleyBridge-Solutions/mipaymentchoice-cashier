@@ -37,7 +37,7 @@ class Endpoints
      */
     public static function merchantTokens(int $merchantKey): string
     {
-        return "/merchants/{$merchantKey}/tokens";
+        return "/api/merchants/{$merchantKey}/tokens";
     }
 
     /**
@@ -48,7 +48,7 @@ class Endpoints
      */
     public static function merchantCardTokens(int $merchantKey): string
     {
-        return "/merchants/{$merchantKey}/tokens/cards";
+        return "/api/merchants/{$merchantKey}/tokens/cards";
     }
 
     /**
@@ -60,7 +60,7 @@ class Endpoints
      */
     public static function merchantCardToken(int $merchantKey, string $token): string
     {
-        return "/merchants/{$merchantKey}/tokens/cards/{$token}";
+        return "/api/merchants/{$merchantKey}/tokens/cards/{$token}";
     }
 
     /**
@@ -72,7 +72,7 @@ class Endpoints
      */
     public static function customerTokens(int $merchantKey, int $customerKey): string
     {
-        return "/merchants/{$merchantKey}/customers/{$customerKey}/tokens";
+        return "/api/merchants/{$merchantKey}/customers/{$customerKey}/tokens";
     }
 
     /**
@@ -84,7 +84,7 @@ class Endpoints
      */
     public static function merchantContract(int $merchantKey, string $contractId): string
     {
-        return "/merchants/{$merchantKey}/contracts/{$contractId}";
+        return "/api/merchants/{$merchantKey}/contracts/{$contractId}";
     }
 
     /**
