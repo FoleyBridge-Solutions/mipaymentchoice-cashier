@@ -7,6 +7,7 @@ namespace FoleyBridgeSolutions\MiPaymentChoiceCashier\Services;
 use FoleyBridgeSolutions\MiPaymentChoiceCashier\Exceptions\ApiException;
 use FoleyBridgeSolutions\MiPaymentChoiceCashier\Validation\CardValidator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class QuickPaymentsService
 {
@@ -209,6 +210,11 @@ class QuickPaymentsService
         if (isset($options['invoice_number'])) {
             $payload['InvoiceData']['InvoiceNumber'] = $options['invoice_number'];
         }
+
+        // Add idempotency key to prevent duplicate charges (mirrors
+        // CardBillable::charge). Callers that don't supply one keep the
+        // previous behavior of a unique key per call.
+        $payload['IdempotencyKey'] = $options['idempotency_key'] ?? Str::uuid()->toString();
 
         return $this->api->post('/api/v2/transactions/bcp', $payload);
     }

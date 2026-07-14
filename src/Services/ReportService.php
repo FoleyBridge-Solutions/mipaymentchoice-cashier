@@ -1,0 +1,114 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FoleyBridgeSolutions\MiPaymentChoiceCashier\Services;
+
+use FoleyBridgeSolutions\MiPaymentChoiceCashier\Exceptions\ApiException;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Service for pulling MiPaymentChoice settlement reports.
+ *
+ * Wraps:
+ *   GET /reports/settlements/              — list batches by date range
+ *   GET /reports/settlements/{batchId}     — transaction detail for one batch
+ *   GET /reports/settlements/closed        — list closed batches
+ */
+class ReportService
+{
+    public function __construct(protected ApiClient $api) {}
+
+    /**
+     * List settlement batches for a date range.
+     *
+     * @param  string  $beginDate  ISO-8601 or Y-m-d
+     * @param  string|null  $endDate
+     * @return array<int, array{BatchId: string, BatchDate: string, TransactionCount: int, SaleAmount: float, ReturnAmount: float, TotalAmount: float, MID: string}>
+     *
+     * @throws ApiException
+     */
+    public function listBatches(string $beginDate, ?string $endDate = null): array
+    {
+        $query = array_filter([
+            'BeginDate' => $beginDate,
+            'EndDate' => $endDate,
+            'PageSize' => 200,
+        ]);
+
+        try {
+            $response = $this->api->get('/reports/settlements/', $query);
+
+            Log::info('MPC settlement batches fetched', [
+                'begin' => $beginDate,
+                'end' => $endDate,
+                'count' => count($response['Batches'] ?? $response),
+            ]);
+
+            return $response['Batches'] ?? (is_array($response) ? $response : []);
+        } catch (ApiException $e) {
+            Log::error('MPC settlement batch list failed', [
+                'error' => $e->getMessage(),
+                'begin' => $beginDate,
+                'end' => $endDate,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get transaction-level detail for a single settlement batch.
+     *
+     * @param  string  $batchId
+     * @return array<int, array{TransactionId: int, Timestamp: string, PaymentType: string, TransactionType: string, Amount: float, Payer: string}>
+     *
+     * @throws ApiException
+     */
+    public function getBatchDetail(string $batchId): array
+    {
+        try {
+            $response = $this->api->get("/reports/settlements/{$batchId}", ['PageSize' => 500]);
+
+            Log::info('MPC batch detail fetched', [
+                'batch_id' => $batchId,
+                'count' => count($response['Transactions'] ?? $response),
+            ]);
+
+            return $response['Transactions'] ?? (is_array($response) ? $response : []);
+        } catch (ApiException $e) {
+            Log::error('MPC batch detail fetch failed', [
+                'batch_id' => $batchId,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * List closed (settled) batches — useful for final reconciliation.
+     *
+     * @throws ApiException
+     */
+    public function listClosedBatches(string $beginDate, ?string $endDate = null): array
+    {
+        $query = array_filter([
+            'BeginDate' => $beginDate,
+            'EndDate' => $endDate,
+            'PageSize' => 200,
+        ]);
+
+        try {
+            $response = $this->api->get('/reports/settlements/closed', $query);
+
+            return $response['Batches'] ?? (is_array($response) ? $response : []);
+        } catch (ApiException $e) {
+            Log::error('MPC closed batch list failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+}
